@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+  <title>가평 자라섬캠핑장 캠핑스쿨 | 체크인 및 찾아오는 방법</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Pretendard Web Font -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'Roboto', 'sans-serif'],
+          },
+          colors: {
+            tq: {
+              primary: '#FF5330',
+              primaryDark: '#E64220',
+              soft: '#FFF2EF',
+              ink: '#191F28',
+              sub: '#4E5968',
+              muted: '#8B95A1',
+              bg: '#F5F6F8',
+              line: '#E5E8EB',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #EBEEF2;
+      color: #191F28;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      word-break: keep-all;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Native Mobile Viewport Height Support */
+    .app-shell {
+      height: 100vh;
+      height: 100dvh;
+    }
+
+    @media (min-width: 768px) {
+      .app-shell {
+        height: 94dvh;
+        max-height: 900px;
+      }
+    }
+
+    /* Horizontal Snap Carousel */
+    .slide-track {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      ms-overflow-style: none;
+    }
+    .slide-track::-webkit-scrollbar {
+      display: none;
+    }
+
+    .slide-item {
+      flex: 0 0 100%;
+      width: 100%;
+      height: 100%;
+      scroll-snap-align: center;
+      scroll-snap-stop: always;
+      overflow: hidden;
+    }
+
+    /* Clean Subtle Scrollbar for Inner Vertical Content */
+    .clean-scroll {
+      scrollbar-width: none;
+      ms-overflow-style: none;
+    }
+    .clean-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Animated Road Flow Dash */
+    @keyframes roadFlow {
+      from { stroke-dashoffset: 36; }
+      to { stroke-dashoffset: 0; }
+    }
+    .road-flow {
+      stroke-dasharray: 10 8;
+      animation: roadFlow 1s linear infinite;
+    }
+
+    /* Gentle Vertical Float for Arrowhead */
+    @keyframes gentleFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    .arrow-float {
+      animation: gentleFloat 1.7s ease-in-out infinite;
+    }
+
+    /* Pulse Ring for Destination / Landmark Marker */
+    @keyframes markerPulse {
+      0% { transform: scale(0.85); opacity: 0.9; }
+      100% { transform: scale(2.1); opacity: 0; }
+    }
+    .pulse-ring {
+      transform-origin: center;
+      transform-box: fill-box;
+      animation: markerPulse 1.8s cubic-bezier(0.2, 0.8, 0.4, 1) infinite;
+    }
+
+    /* Guide Overlay Toggle State */
+    .guide-overlay {
+      transition: opacity 0.22s ease;
+    }
+    .guide-off .guide-overlay {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Bottom Sheet Slide Transition */
+    .sheet-backdrop {
+      transition: opacity 0.25s ease;
+    }
+    .sheet-panel {
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center select-none">
+
+  <!-- Desktop Left Floating Arrow (Outside Mobile Frame) -->
+  <button
+    id="pcPrevBtn"
+    onclick="stepRelative(-1)"
+    aria-label="이전 페이지"
+    class="hidden md:flex fixed left-[calc(50%-296px)] top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-white text-tq-ink shadow-md border border-slate-200/80 items-center justify-center hover:bg-slate-50 active:scale-95 transition disabled:opacity-0 disabled:pointer-events-none"
+  >
+    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"></polyline>
+    </svg>
+  </button>
+
+  <!-- Desktop Right Floating Arrow (Outside Mobile Frame) -->
+  <button
+    id="pcNextBtn"
+    onclick="stepRelative(1)"
+    aria-label="다음 페이지"
+    class="hidden md:flex fixed right-[calc(50%-296px)] top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-white text-tq-ink shadow-md border border-slate-200/80 items-center justify-center hover:bg-slate-50 active:scale-95 transition disabled:opacity-0 disabled:pointer-events-none"
+  >
+    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </button>
+
+  <!-- =========================================================
+       MOBILE-FIRST APP CONTAINER (Full screen on mobile, framed on PC)
+       ========================================================= -->
+  <div class="app-shell w-full max-w-[480px] bg-white md:rounded-[32px] md:shadow-[0_24px_64px_rgba(15,23,42,0.14)] md:border md:border-slate-200/80 flex flex-col overflow-hidden relative">
+
+    <!-- TOP PLATFORM HEADER -->
+    <header class="shrink-0 bg-white z-20">
+      <div class="h-14 px-4 flex items-center justify-between">
+        <!-- ThankQ Camping Official Logo (Click to Cover) -->
+        <button onclick="goToSlide(0)" class="flex items-center gap-2 focus:outline-none active:opacity-75 transition" aria-label="처음 화면으로 이동">
+          <img
+            src="https://i.postimg.cc/d0TcvPZF/image-(28).png"
+            alt="땡큐캠핑 로고"
+            onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"
+            class="h-7 w-auto object-contain"
+          />
+          <span class="hidden text-base font-extrabold tracking-tight text-tq-primary">땡큐캠핑</span>
+        </button>
+
+        <!-- Right Preview Sheet Trigger Button -->
+        <button
+          onclick="togglePreviewSheet(true)"
+          class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-tq-bg hover:bg-slate-200/70 text-tq-ink text-[13px] font-bold transition active:scale-95"
+        >
+          <svg class="w-4 h-4 text-tq-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+            <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+            <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+          </svg>
+          <span>미리보기</span>
+        </button>
+      </div>
+
+      <!-- Thin Linear Progress Bar -->
+      <div class="w-full h-[3px] bg-slate-100 overflow-hidden">
+        <div id="topProgressBar" class="h-full bg-tq-primary transition-all duration-300 ease-out" style="width: 0%;"></div>
+      </div>
+    </header>
+
+    <!-- =========================================================
+         MAIN SWIPEABLE SLIDE DECK (Slides 0 ~ 6)
+         ========================================================= -->
+    <main class="flex-1 min-h-0 relative">
+      <div id="slideTrack" class="slide-track">
+
+        <!-- =====================================================
+             SLIDE 0 : COVER (Clean ThankQ Camping Platform Style)
+             ===================================================== -->
+        <section class="slide-item bg-white" aria-label="표지 안내">
+          <div class="clean-scroll h-full overflow-y-auto px-5 py-5 flex flex-col justify-between text-center select-text">
+
+            <!-- Top Welcome & Title Block -->
+            <div class="flex flex-col items-center pt-1">
+              <!-- Official ThankQ Camping Logo -->
+              <div class="mb-4 flex items-center justify-center">
+                <img
+                  src="https://i.postimg.cc/d0TcvPZF/image-(28).png"
+                  alt="땡큐캠핑"
+                  onerror="this.style.display='none';"
+                  class="h-10 sm:h-11 w-auto object-contain"
+                />
+              </div>
+
+              <!-- Sub Tag Pill -->
+              <span class="inline-flex items-center px-3 py-1 rounded-full bg-tq-soft text-tq-primary text-[12px] font-bold tracking-tight mb-2.5">
+                체크인 장소 및 찾아오는 방법
+              </span>
+
+              <!-- Main Title -->
+              <h1 class="text-[24px] sm:text-[27px] font-extrabold text-tq-ink tracking-tight leading-[1.28]">
+                가평 자라섬캠핑장<br />캠핑스쿨
+              </h1>
+
+              <!-- Greeting -->
+              <p class="mt-2 text-[15px] font-semibold text-tq-sub">
+                안녕하세요 땡큐캠핑 입니다.
+              </p>
+            </div>
+
+            <!-- Middle Event Info Summary Card (Clean Centered Layout) -->
+            <div class="my-4 bg-tq-bg rounded-2xl px-4 py-4 text-center space-y-2.5">
+              <div>
+                <span class="block text-[11px] font-bold text-tq-muted mb-0.5">일정</span>
+                <p class="text-[15px] font-extrabold text-tq-ink">
+                  11월 7일 토요일 ~ 11월 8일 일요일
+                </p>
+              </div>
+
+              <div class="w-10 h-px bg-slate-200 mx-auto"></div>
+
+              <div>
+                <span class="block text-[11px] font-bold text-tq-muted mb-0.5">장소</span>
+                <p class="text-[15px] font-extrabold text-tq-ink">
+                  가평 자라섬캠핑장
+                </p>
+              </div>
+
+              <div class="pt-1 grid grid-cols-2 gap-2">
+                <div class="bg-white rounded-xl py-2 px-2.5 border border-slate-200/60">
+                  <span class="block text-[11px] font-semibold text-tq-muted">주최,주관</span>
+                  <strong class="text-[13px] font-extrabold text-tq-ink">가평군 관광과</strong>
+                </div>
+                <div class="bg-white rounded-xl py-2 px-2.5 border border-slate-200/60">
+                  <span class="block text-[11px] font-semibold text-tq-muted">운영사</span>
+                  <strong class="text-[13px] font-extrabold text-tq-primary">땡큐캠핑</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Image Thumbnail Preview Section (Labeled Simply '미리보기') -->
+            <div class="mb-4">
+              <div class="flex items-center justify-center gap-1.5 mb-2.5">
+                <span class="text-[13px] font-extrabold text-tq-ink">미리보기</span>
+              </div>
+
+              <div class="grid grid-cols-5 gap-1.5">
+                <!-- Thumbnail 1 -->
+                <button onclick="goToSlide(1)" class="group relative aspect-[3/4] rounded-xl overflow-hidden bg-slate-100 border border-slate-200/80 focus:outline-none active:scale-95 transition" aria-label="1번 안내 보기">
+                  <img
+                    src="https://i.postimg.cc/66ZcfD3Q/Kakao-Talk-20261029-145824435.jpg"
+                    alt="1번 미리보기"
+                    onerror="this.onerror=null;this.src='https://placehold.co/160x220/F5F6F8/191F28?text=1';"
+                    class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                  />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/20"></div>
+                  <span class="absolute top-1.5 left-1.5 w-4 h-4 rounded-full bg-tq-primary text-white text-[10px] font-extrabold flex items-center justify-center shadow">1</span>
+                </button>
+
+                <!-- Thumbnail 2 -->
+                <button onclick="goToSlide(2)" class="group relative aspect-[3/4] rounded-xl overflow-hidden bg-slate-100 border border-slate-200/80 focus:outline-none active:scale-95 transition" aria-label="2번 안내 보기">
+                  <img
+                    src="https://i.postimg.cc/PfDyQBx5/Kakao-Talk-20261029-145824435-02.jpg"
+                    alt="2번 미리보기"
+                    onerror="this.onerror=null;this.src='https://placehold.co/160x220/F5F6F8/191F28?text=2';"
+                    class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                  />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/20"></div>
+                  <span class="absolute top-1.5 left-1.5 w-4 h-4 rounded-full bg-tq-primary text-white text-[10px] font-extrabold flex items-center justify-center shadow">2</span>
+                </button>
+
+                <!-- Thumbnail 3 -->
+                <button onclick="goToSlide(3)" class="group relative aspect-[3/4] rounded-xl overflow-hidden bg-slate-100 border border-slate-200/80 focus:outline-none active:scale-95 transition" aria-label="3번 안내 보기">
+                  <img
+                    src="https://i.postimg.cc/HsC2ZBc1/Kakao-Talk-20261029-145824435-03.jpg"
+                    alt="3번 미리보기"
+                    onerror="this.onerror=null;this.src='https://placehold.co/160x220/F5F6F8/191F28?text=3';"
+                    class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                  />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/20"></div>
+                  <span class="absolute top-1.5 left-1.5 w-4 h-4 rounded-full bg-tq-primary text-white text-[10px] font-extrabold flex items-center justify-center shadow">3</span>
+                </button>
+
+                <!-- Thumbnail 4 -->
+                <button onclick="goToSlide(4)" class="group relative aspect-[3/4] rounded-xl overflow-hidden bg-slate-100 border border-slate-200/80 focus:outline-none active:scale-95 transition" aria-label="4번 안내 보기">
+                  <img
+                    src="https://i.postimg.cc/RVzRsX60/Kakao-Talk-20261029-145824435-05.jpg"
+                    alt="4번 미리보기"
+                    onerror="this.onerror=null;this.src='https://placehold.co/160x220/F5F6F8/191F28?text=4';"
+                    class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                  />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/20"></div>
+                  <span class="absolute top-1.5 left-1.5 w-4 h-4 rounded-full bg-tq-primary text-white text-[10px] font-extrabold flex items-center justify-center shadow">4</span>
+                </button>
+
+                <!-- Thumbnail 5 -->
+                <button onclick="goToSlide(5)" class="group relative aspect-[3/4] rounded-xl overflow-hidden bg-slate-100 border border-slate-200/80 focus:outline-none active:scale-95 transition" aria-label="5번 안내 보기">
+                  <img
+                    src="https://i.postimg.cc/nctkR0jC/Kakao-Talk-20261029-145824435-06.jpg"
+                    alt="5번 미리보기"
+                    onerror="this.onerror=null;this.src='https://placehold.co/160x220/F5F6F8/191F28?text=5';"
+                    class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                  />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/20"></div>
+                  <span class="absolute top-1.5 left-1.5 w-4 h-4 rounded-full bg-tq-primary text-white text-[10px] font-extrabold flex items-center justify-center shadow">5</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Primary Start CTA Button -->
+            <div class="pb-1">
+              <button
+                onclick="goToSlide(1)"
+                class="w-full py-3.5 px-5 rounded-2xl bg-tq-primary hover:bg-tq-primaryDark active:scale-[0.99] text-white font-bold text-[16px] shadow-sm flex items-center justify-center gap-2 transition"
+              >
+                <span>오시는 길 안내 보기</span>
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </button>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- =====================================================
+             SLIDE 1 : STEP 01 - IGNORE ENTRANCE & GO STRAIGHT
+             ===================================================== -->
+        <section class="slide-item bg-white flex flex-col" aria-label="1단계 안내">
+          <!-- Enlarged Photo Area (~65% height) -->
+          <div class="photo-box relative w-full h-[65%] shrink-0 bg-slate-900 overflow-hidden">
+            <img
+              src="https://i.postimg.cc/66ZcfD3Q/Kakao-Talk-20261029-145824435.jpg"
+              alt="1단계 자라섬 내부 진입로 직진 사진"
+              onerror="this.onerror=null;this.src='https://placehold.co/800x900/1E293B/FFFFFF?text=STEP+01';"
+              class="w-full h-full object-cover"
+            />
+            <!-- Subtle Edge Scrim -->
+            <div class="guide-overlay absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/30 pointer-events-none"></div>
+
+            <!-- Top Floating Controls -->
+            <div class="absolute top-3 inset-x-3 z-10 flex items-center justify-between">
+              <span class="px-3 py-1 rounded-full bg-black/65 backdrop-blur-md text-white text-[12px] font-extrabold tracking-tight">
+                STEP 01 / 05
+              </span>
+              <div class="flex items-center gap-1.5">
+                <button onclick="toggleGuideOverlay(this)" class="px-3 py-1 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white text-[12px] font-semibold transition">
+                  안내선 끄기
+                </button>
+                <button onclick="openLightbox(1)" class="px-3 py-1 rounded-full bg-white/90 hover:bg-white text-tq-ink text-[12px] font-bold flex items-center gap-1 shadow-sm transition">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <polyline points="9 21 3 21 3 15"></polyline>
+                    <line x1="21" y1="3" x2="14" y2="10"></line>
+                    <line x1="3" y1="21" x2="10" y2="14"></line>
+                  </svg>
+                  <span>크게보기</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- SVG Directional Graphic: Straight Road Arrow + Pass Entrance Badge -->
+            <svg class="guide-overlay absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 400 420" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <filter id="dropShadow1" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000000" flood-opacity="0.45"/>
+                </filter>
+              </defs>
+
+              <!-- Straight Center Guide Path -->
+              <path d="M 200 390 L 200 145" stroke="#FF5330" stroke-width="18" stroke-linecap="round" opacity="0.28" />
+              <path d="M 200 390 L 200 148" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" class="road-flow" filter="url(#dropShadow1)" />
+
+              <!-- Straight Arrowhead & Label -->
+              <g class="arrow-float" filter="url(#dropShadow1)">
+                <polygon points="200,98 170,146 189,146 189,168 211,168 211,146 230,146" fill="#FF5330" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round"/>
+                <rect x="122" y="54" width="156" height="32" rx="16" fill="#FF5330" />
+                <text x="200" y="75" text-anchor="middle" fill="#FFFFFF" font-size="13" font-weight="800">안쪽으로 쭉 직진</text>
+              </g>
+
+              <!-- Entrance Check-in Ignore Callout -->
+              <g filter="url(#dropShadow1)">
+                <rect x="20" y="292" width="174" height="44" rx="12" fill="#191F28" fill-opacity="0.92" stroke="#FFFFFF" stroke-width="1.5"/>
+                <circle cx="43" cy="314" r="10" fill="#FF5330"/>
+                <path d="M39 310 L47 318 M47 310 L39 318" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round"/>
+                <text x="61" y="311" fill="#FFFFFF" font-size="12" font-weight="800">입구 체크인 패스 (무시)</text>
+                <text x="61" y="326" fill="#CBD5E1" font-size="10.5" font-weight="600">멈추지 말고 통과하세요</text>
+              </g>
+            </svg>
+          </div>
+
+          <!-- Centered Text Description Area -->
+          <div class="clean-scroll flex-1 min-h-0 px-5 py-4 flex flex-col items-center justify-center text-center bg-white overflow-y-auto select-text">
+            <span class="inline-block px-3 py-1 rounded-full bg-tq-soft text-tq-primary text-[12px] font-extrabold mb-2.5">
+              STEP 01 · 안쪽으로 직진
+            </span>
+            <p class="text-[16px] sm:text-[17px] font-bold text-tq-ink leading-[1.6]">
+              자라섬 내부 진입로는 하나 입니다.<br />
+              처음 들어 오시면 <span class="text-tq-primary font-extrabold underline decoration-tq-primary/40 decoration-2 underline-offset-4">입구에서 체크인 장소 무시</span> 하시고<br />
+              <strong class="font-extrabold text-tq-ink">안쪽으로 쭉 들어 오세요</strong>
+            </p>
+          </div>
+        </section>
+
+        <!-- =====================================================
+             SLIDE 2 : STEP 02 - BLUE GUIDE LINE LEFT TURN
+             ===================================================== -->
+        <section class="slide-item bg-white flex flex-col" aria-label="2단계 안내">
+          <!-- Enlarged Photo Area (~65% height) -->
+          <div class="photo-box relative w-full h-[65%] shrink-0 bg-slate-900 overflow-hidden">
+            <img
+              src="https://i.postimg.cc/PfDyQBx5/Kakao-Talk-20261029-145824435-02.jpg"
+              alt="2단계 갈림길 파란색 유도선 좌회전 사진"
+              onerror="this.onerror=null;this.src='https://placehold.co/800x900/1E293B/FFFFFF?text=STEP+02';"
+              class="w-full h-full object-cover"
+            />
+            <div class="guide-overlay absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/30 pointer-events-none"></div>
+
+            <!-- Top Floating Controls -->
+            <div class="absolute top-3 inset-x-3 z-10 flex items-center justify-between">
+              <span class="px-3 py-1 rounded-full bg-black/65 backdrop-blur-md text-white text-[12px] font-extrabold tracking-tight">
+                STEP 02 / 05
+              </span>
+              <div class="flex items-center gap-1.5">
+                <button onclick="toggleGuideOverlay(this)" class="px-3 py-1 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white text-[12px] font-semibold transition">
+                  안내선 끄기
+                </button>
+                <button onclick="openLightbox(2)" class="px-3 py-1 rounded-full bg-white/90 hover:bg-white text-tq-ink text-[12px] font-bold flex items-center gap-1 shadow-sm transition">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <polyline points="9 21 3 21 3 15"></polyline>
+                    <line x1="21" y1="3" x2="14" y2="10"></line>
+                    <line x1="3" y1="21" x2="10" y2="14"></line>
+                  </svg>
+                  <span>크게보기</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- SVG Directional Graphic: Curved Blue Left-Turn Arrow -->
+            <svg class="guide-overlay absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 400 420" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <filter id="dropShadow2" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000000" flood-opacity="0.5"/>
+                </filter>
+              </defs>
+
+              <!-- Smooth Curved Blue Guide Line Turning Left -->
+              <path d="M 240 390 Q 230 225 106 188" fill="none" stroke="#3B82F6" stroke-width="20" stroke-linecap="round" opacity="0.32" />
+              <path d="M 240 390 Q 230 225 108 188" fill="none" stroke="#2563EB" stroke-width="9" stroke-linecap="round" filter="url(#dropShadow2)" />
+              <path d="M 240 390 Q 230 225 108 188" fill="none" stroke="#EFF6FF" stroke-width="4" stroke-linecap="round" class="road-flow" />
+
+              <!-- Left Turn Arrowhead -->
+              <g class="arrow-float" filter="url(#dropShadow2)">
+                <polygon points="68,182 116,158 111,179 130,183 126,201 107,197 102,216" fill="#2563EB" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round"/>
+              </g>
+
+              <!-- Blue Line Left Turn Callout Pill -->
+              <g filter="url(#dropShadow2)">
+                <rect x="76" y="64" width="248" height="36" rx="18" fill="#2563EB" stroke="#FFFFFF" stroke-width="1.5"/>
+                <text x="200" y="87" text-anchor="middle" fill="#FFFFFF" font-size="13" font-weight="800">파란색 유도선 좌회전 (꽃정원 방향)</text>
+              </g>
+            </svg>
+          </div>
+
+          <!-- Centered Text Description Area -->
+          <div class="clean-scroll flex-1 min-h-0 px-5 py-4 flex flex-col items-center justify-center text-center bg-white overflow-y-auto select-text">
+            <span class="inline-block px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[12px] font-extrabold mb-2.5">
+              STEP 02 · 파란색 유도선 좌회전
+            </span>
+            <p class="text-[16px] sm:text-[17px] font-bold text-tq-ink leading-[1.6]">
+              쭉 들어 오시다 보면 갈림길에서<br />
+              <span class="text-blue-600 font-extrabold underline decoration-blue-400/50 decoration-2 underline-offset-4">파란색 유도선 따라 꽃정원으로 좌회전</span> 합니다.
+            </p>
+          </div>
+        </section>
+
+        <!-- =====================================================
+             SLIDE 3 : STEP 03 - GREEN GUIDE LINE STRAIGHT (SEODO)
+             ===================================================== -->
+        <section class="slide-item bg-white flex flex-col" aria-label="3단계 안내">
+          <!-- Enlarged Photo Area (~65% height) -->
+          <div class="photo-box relative w-full h-[65%] shrink-0 bg-slate-900 overflow-hidden">
+            <img
+              src="https://i.postimg.cc/HsC2ZBc1/Kakao-Talk-20261029-145824435-03.jpg"
+              alt="3단계 자전거대여소 확인 및 초록색 유도선 직진 사진"
+              onerror="this.onerror=null;this.src='https://placehold.co/800x900/1E293B/FFFFFF?text=STEP+03';"
+              class="w-full h-full object-cover"
+            />
+            <div class="guide-overlay absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/30 pointer-events-none"></div>
+
+            <!-- Top Floating Controls -->
+            <div class="absolute top-3 inset-x-3 z-10 flex items-center justify-between">
+              <span class="px-3 py-1 rounded-full bg-black/65 backdrop-blur-md text-white text-[12px] font-extrabold tracking-tight">
+                STEP 03 / 05
+              </span>
+              <div class="flex items-center gap-1.5">
+                <button onclick="toggleGuideOverlay(this)" class="px-3 py-1 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white text-[12px] font-semibold transition">
+                  안내선 끄기
+                </button>
+                <button onclick="openLightbox(3)" class="px-3 py-1 rounded-full bg-white/90 hover:bg-white text-tq-ink text-[12px] font-bold flex items-center gap-1 shadow-sm transition">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <polyline points="9 21 3 21 3 15"></polyline>
+                    <line x1="21" y1="3" x2="14" y2="10"></line>
+                    <line x1="3" y1="21" x2="10" y2="14"></line>
+                  </svg>
+                  <span>크게보기</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- SVG Directional Graphic: Left Bike Rental Marker + Right/Forward Green Straight Line -->
+            <svg class="guide-overlay absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 400 420" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <filter id="dropShadow3" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000000" flood-opacity="0.5"/>
+                </filter>
+              </defs>
+
+              <!-- Green Guide Line Going Straight Along Right Seodo Road -->
+              <path d="M 218 390 Q 232 268 246 146" fill="none" stroke="#22C55E" stroke-width="18" stroke-linecap="round" opacity="0.32" />
+              <path d="M 218 390 Q 232 268 246 148" fill="none" stroke="#16A34A" stroke-width="8" stroke-linecap="round" filter="url(#dropShadow3)" />
+              <path d="M 218 390 Q 232 268 246 148" fill="none" stroke="#ECFDF5" stroke-width="4" stroke-linecap="round" class="road-flow" />
+
+              <!-- Straight Green Arrowhead -->
+              <g class="arrow-float" filter="url(#dropShadow3)">
+                <polygon points="250,104 220,150 238,151 236,170 256,172 258,153 276,154" fill="#16A34A" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round"/>
+                <rect x="132" y="56" width="224" height="34" rx="17" fill="#16A34A" stroke="#FFFFFF" stroke-width="1.5"/>
+                <text x="244" y="78" text-anchor="middle" fill="#FFFFFF" font-size="12.5" font-weight="800">초록색 유도선 · 서도 따라 직진</text>
+              </g>
+
+              <!-- Standalone Left Landmark Marker (No Arrow, Pure Location Tag) -->
+              <g filter="url(#dropShadow3)">
+                <circle cx="78" cy="242" r="7" fill="#FFFFFF" stroke="#191F28" stroke-width="2.5"/>
+                <rect x="18" y="196" width="136" height="34" rx="10" fill="#191F28" fill-opacity="0.9" stroke="#FFFFFF" stroke-width="1.2"/>
+                <text x="86" y="218" text-anchor="middle" fill="#FFFFFF" font-size="11.5" font-weight="700">왼쪽 자전거대여소 확인</text>
+              </g>
+            </svg>
+          </div>
+
+          <!-- Centered Text Description Area -->
+          <div class="clean-scroll flex-1 min-h-0 px-5 py-3.5 flex flex-col items-center justify-center text-center bg-white overflow-y-auto select-text">
+            <span class="inline-block px-3 py-1 rounded-full bg-green-50 text-green-700 text-[12px] font-extrabold mb-2">
+              STEP 03 · 초록색 유도선 계속 직진
+            </span>
+            <p class="text-[15.5px] sm:text-[16.5px] font-bold text-tq-ink leading-[1.58]">
+              왼쪽 자전거대여소가 보이면<br />
+              <span class="text-green-600 font-extrabold underline decoration-green-500/40 decoration-2 underline-offset-4">초록색 유도선 따라 계속 직진</span> 합니다.<br />
+              오른쪽 서도 따라 계속 들어 오세요<br />
+              <span class="text-tq-primary font-extrabold">생각보다 많이 들어 옵니다.</span>
+            </p>
+          </div>
+        </section>
+
+        <!-- =====================================================
+             SLIDE 4 : STEP 04 - KEEP GOING STRAIGHT PAST LEFT GS
+             (ZERO LEFT-TURN AMBIGUITY: Bold Straight Center Arrow + Separate Left GS Check Badge)
+             ===================================================== -->
+        <section class="slide-item bg-white flex flex-col" aria-label="4단계 안내">
+          <!-- Enlarged Photo Area (~65% height) -->
+          <div class="photo-box relative w-full h-[65%] shrink-0 bg-slate-900 overflow-hidden">
+            <img
+              src="https://i.postimg.cc/RVzRsX60/Kakao-Talk-20261029-145824435-05.jpg"
+              alt="4단계 왼쪽 GS 건물 확인 후 계속 직진 사진"
+              onerror="this.onerror=null;this.src='https://placehold.co/800x900/1E293B/FFFFFF?text=STEP+04';"
+              class="w-full h-full object-cover"
+            />
+            <div class="guide-overlay absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/30 pointer-events-none"></div>
+
+            <!-- Top Floating Controls -->
+            <div class="absolute top-3 inset-x-3 z-10 flex items-center justify-between">
+              <span class="px-3 py-1 rounded-full bg-black/65 backdrop-blur-md text-white text-[12px] font-extrabold tracking-tight">
+                STEP 04 / 05
+              </span>
+              <div class="flex items-center gap-1.5">
+                <button onclick="toggleGuideOverlay(this)" class="px-3 py-1 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white text-[12px] font-semibold transition">
+                  안내선 끄기
+                </button>
+                <button onclick="openLightbox(4)" class="px-3 py-1 rounded-full bg-white/90 hover:bg-white text-tq-ink text-[12px] font-bold flex items-center gap-1 shadow-sm transition">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <polyline points="9 21 3 21 3 15"></polyline>
+                    <line x1="21" y1="3" x2="14" y2="10"></line>
+                    <line x1="3" y1="21" x2="10" y2="14"></line>
+                  </svg>
+                  <span>크게보기</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- SVG Directional Graphic:
+                 1) Bold Unmistakable Straight-Ahead Road Arrow down the driving lane
+                 2) Completely Disconnected Left GS Landmark Verification Badge (Never looks like a left turn!) -->
+            <svg class="guide-overlay absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 400 420" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <filter id="dropShadow4" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000000" flood-opacity="0.5"/>
+                </filter>
+              </defs>
+
+              <!-- 2. COMPLETELY SEPARATE LANDMARK BADGE ON LEFT (GS Building Check Only) -->
+              <g>
+                <circle cx="84" cy="236" r="16" fill="none" stroke="#10B981" stroke-width="2.5" class="pulse-ring" />
+                <circle cx="84" cy="236" r="8" fill="#10B981" stroke="#FFFFFF" stroke-width="2.5" filter="url(#dropShadow4)" />
+              </g>
+
+              <g filter="url(#dropShadow4)">
+                <rect x="16" y="168" width="144" height="46" rx="12" fill="#FFFFFF" stroke="#10B981" stroke-width="2"/>
+                <circle cx="36" cy="191" r="10" fill="#10B981"/>
+                <polyline points="31 191 35 195 41 187" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                <text x="52" y="188" fill="#191F28" font-size="11.5" font-weight="800">왼쪽 GS 건물 확인</text>
+                <text x="52" y="203" fill="#059669" font-size="10.5" font-weight="700">보이면 잘 오신 거예요</text>
+              </g>
+            </svg>
+          </div>
+
+          <!-- Centered Text Description Area -->
+          <div class="clean-scroll flex-1 min-h-0 px-5 py-4 flex flex-col items-center justify-center text-center bg-white overflow-y-auto select-text">
+            <span class="inline-block px-3 py-1 rounded-full bg-tq-soft text-tq-primary text-[12px] font-extrabold mb-2.5">
+              STEP 04 · 왼쪽 GS 확인 후 계속 직진
+            </span>
+            <p class="text-[16px] sm:text-[17px] font-bold text-tq-ink leading-[1.6]">
+              <span class="text-tq-primary font-extrabold underline decoration-tq-primary/40 decoration-2 underline-offset-4">쭉 계속 들어 오세요</span><br />
+              들어 오시다 보면 왼쪽 편에 GS 건물이 보여요<br />
+              그럼 잘 오신겁니다.
+            </p>
+          </div>
+        </section>
+
+        <!-- =====================================================
+             SLIDE 5 : STEP 05 - ARRIVAL AT THANKQ CAMPING CHECK-IN
+             ===================================================== -->
+        <section class="slide-item bg-white flex flex-col" aria-label="5단계 안내">
+          <!-- Enlarged Photo Area (~65% height) -->
+          <div class="photo-box relative w-full h-[65%] shrink-0 bg-slate-900 overflow-hidden">
+            <img
+              src="https://i.postimg.cc/nctkR0jC/Kakao-Talk-20261029-145824435-06.jpg"
+              alt="5단계 땡큐캠핑 체크인 도착 사진"
+              onerror="this.onerror=null;this.src='https://placehold.co/800x900/1E293B/FFFFFF?text=STEP+05';"
+              class="w-full h-full object-cover"
+            />
+            <div class="guide-overlay absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/30 pointer-events-none"></div>
+
+            <!-- Top Floating Controls -->
+            <div class="absolute top-3 inset-x-3 z-10 flex items-center justify-between">
+              <span class="px-3 py-1 rounded-full bg-tq-primary text-white text-[12px] font-extrabold tracking-tight shadow-sm">
+                STEP 05 / 05
+              </span>
+              <div class="flex items-center gap-1.5">
+                <button onclick="toggleGuideOverlay(this)" class="px-3 py-1 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white text-[12px] font-semibold transition">
+                  안내선 끄기
+                </button>
+                <button onclick="openLightbox(5)" class="px-3 py-1 rounded-full bg-white/90 hover:bg-white text-tq-ink text-[12px] font-bold flex items-center gap-1 shadow-sm transition">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <polyline points="9 21 3 21 3 15"></polyline>
+                    <line x1="21" y1="3" x2="14" y2="10"></line>
+                    <line x1="3" y1="21" x2="10" y2="14"></line>
+                  </svg>
+                  <span>크게보기</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- SVG Directional Graphic: Short Forward Arrow + Coral Destination Beacon -->
+            <svg class="guide-overlay absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 400 420" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <filter id="dropShadow5" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000000" flood-opacity="0.5"/>
+                </filter>
+              </defs>
+
+              <!-- Short Forward Approach Line -->
+              <path d="M 200 385 L 200 250" stroke="#FF5330" stroke-width="14" stroke-linecap="round" opacity="0.3" />
+              <path d="M 200 385 L 200 252" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" class="road-flow" filter="url(#dropShadow5)" />
+
+              <!-- Pulsing Coral Destination Pin -->
+              <circle cx="200" cy="216" r="24" fill="none" stroke="#FF5330" stroke-width="3" class="pulse-ring" />
+              <circle cx="200" cy="216" r="10" fill="#FF5330" stroke="#FFFFFF" stroke-width="3" filter="url(#dropShadow5)" />
+
+              <!-- Floating Destination Arrival Pill -->
+              <g class="arrow-float" filter="url(#dropShadow5)">
+                <rect x="92" y="128" width="216" height="44" rx="22" fill="#FF5330" stroke="#FFFFFF" stroke-width="2"/>
+                <text x="200" y="155" text-anchor="middle" fill="#FFFFFF" font-size="14" font-weight="800">땡큐캠핑 체크인 도착</text>
+                <polygon points="192,172 208,172 200,184" fill="#FFFFFF"/>
+              </g>
+            </svg>
+          </div>
+
+          <!-- Centered Text Description Area -->
+          <div class="clean-scroll flex-1 min-h-0 px-5 py-4 flex flex-col items-center justify-center text-center bg-white overflow-y-auto select-text">
+            <span class="inline-block px-3 py-1 rounded-full bg-tq-soft text-tq-primary text-[12px] font-extrabold mb-2.5">
+              STEP 05 · 체크인 장소 도착
+            </span>
+            <p class="text-[16px] sm:text-[17px] font-bold text-tq-ink leading-[1.6]">
+              조금만 앞으로 오시면 <span class="text-tq-primary font-extrabold underline decoration-tq-primary/40 decoration-2 underline-offset-4">이제 이쪽에 저희가 있을꺼에요</span><br />
+              여기 까지 오시느라 고생많으셨어요<br />
+              우리 1박2일 동안 즐겁게 캠핑 해봐요
+            </p>
+          </div>
+        </section>
+
+        <!-- =====================================================
+             SLIDE 6 : CONTACT & CLOSING (Clean Centered Layout)
+             ===================================================== -->
+        <section class="slide-item bg-white" aria-label="문의 및 연락처 안내">
+          <div class="clean-scroll h-full overflow-y-auto px-6 py-6 flex flex-col items-center justify-between text-center select-text">
+
+            <!-- Top Logo & Heading -->
+            <div class="flex flex-col items-center pt-2">
+              <img
+                src="https://i.postimg.cc/d0TcvPZF/image-(28).png"
+                alt="땡큐캠핑 로고"
+                onerror="this.style.display='none';"
+                class="h-9 sm:h-10 w-auto object-contain mb-4"
+              />
+              <span class="inline-flex items-center px-3 py-1 rounded-full bg-tq-soft text-tq-primary text-[12px] font-extrabold mb-3">
+                문의 안내
+              </span>
+              <p class="text-[17px] sm:text-[18px] font-bold text-tq-ink leading-[1.6]">
+                궁금하신 사항은 <strong class="font-extrabold">인스타그램 DM</strong> 또는<br />
+                <strong class="text-[22px] sm:text-[24px] font-extrabold text-tq-primary tracking-tight">010-7140-7798</strong> 연락주세요
+              </p>
+            </div>
+
+            <!-- Friendly Notice Card (Exact Original Copy Centered) -->
+            <div class="w-full my-4 bg-tq-bg rounded-2xl p-5 space-y-3 text-center">
+              <div class="w-9 h-9 rounded-full bg-white text-tq-primary flex items-center justify-center mx-auto shadow-sm">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+              </div>
+
+              <p class="text-[15px] sm:text-[16px] font-bold text-tq-ink leading-[1.65]">
+                모바일 연락은 늦은밤 연락은 미워요<br />
+                인스타그램은 괜찮아요 확인 하는데로 답변 드릴께요
+              </p>
+
+              <div class="w-10 h-px bg-slate-200 mx-auto"></div>
+
+              <p class="text-[16px] font-extrabold text-tq-ink">
+                감사합니다.
+              </p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="w-full space-y-2.5 pb-1">
+              <a
+                href="tel:010-7140-7798"
+                class="w-full py-3.5 px-4 rounded-2xl bg-tq-primary hover:bg-tq-primaryDark active:scale-[0.99] text-white font-bold text-[15px] flex items-center justify-center gap-2 shadow-sm transition"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                </svg>
+                <span>010-7140-7798 전화 연결</span>
+              </a>
+
+              <div class="grid grid-cols-2 gap-2">
+                <button
+                  onclick="copyPhone()"
+                  class="py-3 px-3 rounded-2xl bg-tq-bg hover:bg-slate-200/80 text-tq-ink font-bold text-[13.5px] flex items-center justify-center gap-1.5 transition"
+                >
+                  <svg class="w-4 h-4 text-tq-sub" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span>전화번호 복사</span>
+                </button>
+
+                <button
+                  onclick="goToSlide(0)"
+                  class="py-3 px-3 rounded-2xl bg-tq-bg hover:bg-slate-200/80 text-tq-ink font-bold text-[13.5px] flex items-center justify-center gap-1.5 transition"
+                >
+                  <svg class="w-4 h-4 text-tq-sub" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="1 4 1 10 7 10"></polyline>
+                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                  </svg>
+                  <span>처음으로 돌아가기</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- =========================================================
+         BOTTOM SINGLE-HAND NAVIGATION BAR
+         ========================================================= -->
+    <footer class="shrink-0 h-14 px-4 bg-white border-t border-slate-100 flex items-center justify-between z-20">
+      <!-- Prev Button -->
+      <button
+        id="bottomPrevBtn"
+        onclick="stepRelative(-1)"
+        class="min-w-[72px] py-2 px-2.5 rounded-xl text-[13.5px] font-bold text-tq-sub hover:bg-tq-bg disabled:opacity-30 disabled:pointer-events-none flex items-center justify-start gap-1 transition"
+      >
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        <span>이전</span>
+      </button>
+
+      <!-- Center Interactive Indicator Dots -->
+      <div class="flex items-center gap-1.5" role="tablist" aria-label="슬라이드 이동">
+        <button onclick="goToSlide(0)" data-dot="0" aria-label="표지" class="nav-dot h-2 rounded-full transition-all duration-300"></button>
+        <button onclick="goToSlide(1)" data-dot="1" aria-label="1단계" class="nav-dot h-2 rounded-full transition-all duration-300"></button>
+        <button onclick="goToSlide(2)" data-dot="2" aria-label="2단계" class="nav-dot h-2 rounded-full transition-all duration-300"></button>
+        <button onclick="goToSlide(3)" data-dot="3" aria-label="3단계" class="nav-dot h-2 rounded-full transition-all duration-300"></button>
+        <button onclick="goToSlide(4)" data-dot="4" aria-label="4단계" class="nav-dot h-2 rounded-full transition-all duration-300"></button>
+        <button onclick="goToSlide(5)" data-dot="5" aria-label="5단계" class="nav-dot h-2 rounded-full transition-all duration-300"></button>
+        <button onclick="goToSlide(6)" data-dot="6" aria-label="문의" class="nav-dot h-2 rounded-full transition-all duration-300"></button>
+      </div>
+
+      <!-- Next Button -->
+      <button
+        id="bottomNextBtn"
+        onclick="handleNextClick()"
+        class="min-w-[72px] py-2 px-2.5 rounded-xl text-[13.5px] font-extrabold text-tq-primary hover:bg-tq-soft flex items-center justify-end gap-1 transition"
+      >
+        <span id="bottomNextLabel">다음</span>
+        <svg id="bottomNextIcon" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+    </footer>
+
+    <!-- =========================================================
+         BOTTOM SHEET MODAL: '미리보기' (All 5 Attached Photos Grid)
+         ========================================================= -->
+    <div id="previewSheetModal" class="fixed md:absolute inset-0 z-40 hidden flex flex-col justify-end">
+      <!-- Backdrop -->
+      <div onclick="togglePreviewSheet(false)" class="sheet-backdrop absolute inset-0 bg-black/50 backdrop-blur-[2px]"></div>
+
+      <!-- Bottom Sheet Content -->
+      <div class="sheet-panel relative z-10 w-full bg-white rounded-t-3xl pt-3 pb-6 px-4 max-h-[84%] flex flex-col shadow-2xl">
+        <div class="w-10 h-1 rounded-full bg-slate-300 mx-auto mb-3 shrink-0"></div>
+
+        <div class="flex items-center justify-between px-1 mb-3 shrink-0">
+          <div class="w-8"></div>
+          <h2 class="text-[16px] font-extrabold text-tq-ink text-center">미리보기</h2>
+          <button onclick="togglePreviewSheet(false)" aria-label="닫기" class="w-8 h-8 rounded-full bg-tq-bg hover:bg-slate-200 flex items-center justify-center text-tq-sub transition">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- 2-Column Large Visual Thumbnail Cards -->
+        <div class="clean-scroll overflow-y-auto grid grid-cols-2 gap-2.5 pb-1">
+          <!-- Card 1 -->
+          <button onclick="jumpFromSheet(1)" class="group text-center bg-tq-bg rounded-2xl overflow-hidden border border-slate-200/70 focus:outline-none active:scale-[0.98] transition">
+            <div class="relative aspect-[4/3] bg-slate-200 overflow-hidden">
+              <img src="https://i.postimg.cc/66ZcfD3Q/Kakao-Talk-20261029-145824435.jpg" alt="1번 사진" onerror="this.onerror=null;this.src='https://placehold.co/320x240/F5F6F8/191F28?text=1';" class="w-full h-full object-cover group-hover:scale-105 transition duration-300"/>
+              <span class="absolute top-2 left-2 w-5 h-5 rounded-full bg-tq-primary text-white text-[11px] font-extrabold flex items-center justify-center shadow">1</span>
+            </div>
+            <div class="p-2.5 text-center">
+              <p class="text-[12.5px] font-bold text-tq-ink">입구 패스 · 직진</p>
+            </div>
+          </button>
+
+          <!-- Card 2 -->
+          <button onclick="jumpFromSheet(2)" class="group text-center bg-tq-bg rounded-2xl overflow-hidden border border-slate-200/70 focus:outline-none active:scale-[0.98] transition">
+            <div class="relative aspect-[4/3] bg-slate-200 overflow-hidden">
+              <img src="https://i.postimg.cc/PfDyQBx5/Kakao-Talk-20261029-145824435-02.jpg" alt="2번 사진" onerror="this.onerror=null;this.src='https://placehold.co/320x240/F5F6F8/191F28?text=2';" class="w-full h-full object-cover group-hover:scale-105 transition duration-300"/>
+              <span class="absolute top-2 left-2 w-5 h-5 rounded-full bg-tq-primary text-white text-[11px] font-extrabold flex items-center justify-center shadow">2</span>
+            </div>
+            <div class="p-2.5 text-center">
+              <p class="text-[12.5px] font-bold text-tq-ink">파란색 유도선 좌회전</p>
+            </div>
+          </button>
+
+          <!-- Card 3 -->
+          <button onclick="jumpFromSheet(3)" class="group text-center bg-tq-bg rounded-2xl overflow-hidden border border-slate-200/70 focus:outline-none active:scale-[0.98] transition">
+            <div class="relative aspect-[4/3] bg-slate-200 overflow-hidden">
+              <img src="https://i.postimg.cc/HsC2ZBc1/Kakao-Talk-20261029-145824435-03.jpg" alt="3번 사진" onerror="this.onerror=null;this.src='https://placehold.co/320x240/F5F6F8/191F28?text=3';" class="w-full h-full object-cover group-hover:scale-105 transition duration-300"/>
+              <span class="absolute top-2 left-2 w-5 h-5 rounded-full bg-tq-primary text-white text-[11px] font-extrabold flex items-center justify-center shadow">3</span>
+            </div>
+            <div class="p-2.5 text-center">
+              <p class="text-[12.5px] font-bold text-tq-ink">초록색 유도선 직진</p>
+            </div>
+          </button>
+
+          <!-- Card 4 -->
+          <button onclick="jumpFromSheet(4)" class="group text-center bg-tq-bg rounded-2xl overflow-hidden border border-slate-200/70 focus:outline-none active:scale-[0.98] transition">
+            <div class="relative aspect-[4/3] bg-slate-200 overflow-hidden">
+              <img src="https://i.postimg.cc/RVzRsX60/Kakao-Talk-20261029-145824435-05.jpg" alt="4번 사진" onerror="this.onerror=null;this.src='https://placehold.co/320x240/F5F6F8/191F28?text=4';" class="w-full h-full object-cover group-hover:scale-105 transition duration-300"/>
+              <span class="absolute top-2 left-2 w-5 h-5 rounded-full bg-tq-primary text-white text-[11px] font-extrabold flex items-center justify-center shadow">4</span>
+            </div>
+            <div class="p-2.5 text-center">
+              <p class="text-[12.5px] font-bold text-tq-ink">왼쪽 GS 확인 후 직진</p>
+            </div>
+          </button>
+
+          <!-- Card 5 (Full Width Highlight) -->
+          <button onclick="jumpFromSheet(5)" class="col-span-2 group text-center bg-tq-soft rounded-2xl overflow-hidden border border-tq-primary/20 focus:outline-none active:scale-[0.99] transition">
+            <div class="relative aspect-[16/8] bg-slate-200 overflow-hidden">
+              <img src="https://i.postimg.cc/nctkR0jC/Kakao-Talk-20261029-145824435-06.jpg" alt="5번 사진" onerror="this.onerror=null;this.src='https://placehold.co/640x320/F5F6F8/191F28?text=5';" class="w-full h-full object-cover group-hover:scale-105 transition duration-300"/>
+              <span class="absolute top-2 left-2 w-5 h-5 rounded-full bg-tq-primary text-white text-[11px] font-extrabold flex items-center justify-center shadow">5</span>
+            </div>
+            <div class="p-2.5 text-center">
+              <p class="text-[13px] font-extrabold text-tq-primary">땡큐캠핑 체크인 장소 도착</p>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- =========================================================
+       ORIGINAL PHOTO FULL-SCREEN LIGHTBOX VIEWER
+       ========================================================= -->
+  <div id="lightboxModal" class="fixed inset-0 z-50 hidden bg-black/95 flex flex-col justify-between p-4" onclick="closeLightbox()">
+    <div class="max-w-lg w-full mx-auto flex items-center justify-between pt-1" onclick="event.stopPropagation()">
+      <span id="lightboxStepBadge" class="px-3 py-1 rounded-full bg-white/15 text-white text-xs font-extrabold">STEP 01</span>
+      <button onclick="closeLightbox()" class="px-3.5 py-1.5 rounded-full bg-white/15 hover:bg-white/25 text-white text-xs font-bold flex items-center gap-1 transition">
+        <span>닫기</span>
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="flex-1 flex items-center justify-center my-3 overflow-hidden" onclick="event.stopPropagation()">
+      <img id="lightboxImage" src="" alt="원본 확대 이미지" class="max-w-full max-h-[72dvh] object-contain rounded-xl" />
+    </div>
+
+    <div class="max-w-md w-full mx-auto pb-2 text-center" onclick="event.stopPropagation()">
+      <p id="lightboxCaption" class="text-white/95 text-[14px] sm:text-[15px] font-bold leading-relaxed"></p>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       TOAST MESSAGE BANNER (No browser alert)
+       ========================================================= -->
+  <div id="toastBox" class="fixed bottom-16 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 translate-y-2 transition-all duration-250">
+    <div class="px-4 py-2.5 rounded-full bg-tq-ink text-white text-[13px] font-bold shadow-lg flex items-center gap-2">
+      <svg class="w-4 h-4 text-tq-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+      <span id="toastText">전화번호가 복사되었습니다.</span>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       APPLICATION SCRIPT
+       ========================================================= -->
+  <script>
+    const PHOTO_DATA = {
+      1: {
+        badge: 'STEP 01 · 안쪽으로 직진',
+        src: 'https://i.postimg.cc/66ZcfD3Q/Kakao-Talk-20261029-145824435.jpg',
+        caption: '자라섬 내부 진입로는 하나 입니다. 처음 들어 오시면 입구에서 체크인 장소 무시 하시고 안쪽으로 쭉 들어 오세요'
+      },
+      2: {
+        badge: 'STEP 02 · 파란색 유도선 좌회전',
+        src: 'https://i.postimg.cc/PfDyQBx5/Kakao-Talk-20261029-145824435-02.jpg',
+        caption: '쭉 들어 오시다 보면 갈림길에서 파란색 유도선 따라 꽃정원으로 좌회전 합니다.'
+      },
+      3: {
+        badge: 'STEP 03 · 초록색 유도선 계속 직진',
+        src: 'https://i.postimg.cc/HsC2ZBc1/Kakao-Talk-20261029-145824435-03.jpg',
+        caption: '왼쪽 자전거대여소가 보이면 초록색 유도선 따라 계속 직진 합니다. 오른쪽 서도 따라 계속 들어 오세요 생각보다 많이 들어 옵니다.'
+      },
+      4: {
+        badge: 'STEP 04 · 왼쪽 GS 확인 후 계속 직진',
+        src: 'https://i.postimg.cc/RVzRsX60/Kakao-Talk-20261029-145824435-05.jpg',
+        caption: '쭉 계속 들어 오세요 들어 오시다 보면 왼쪽 편에 GS 건물이 보여요 그럼 잘 오신겁니다.'
+      },
+      5: {
+        badge: 'STEP 05 · 체크인 장소 도착',
+        src: 'https://i.postimg.cc/nctkR0jC/Kakao-Talk-20261029-145824435-06.jpg',
+        caption: '조금만 앞으로 오시면 이제 이쪽에 저희가 있을꺼에요 여기 까지 오시느라 고생많으셨어요 우리 1박2일 동안 즐겁게 캠핑 해봐요'
+      }
+    };
+
+    const track = document.getElementById('slideTrack');
+    const TOTAL_SLIDES = 7;
+    let activeSlide = 0;
+    let toastTimer = null;
+
+    /**
+     * Navigate smoothly to target slide index (0..6)
+     */
+    function goToSlide(index) {
+      const target = Math.max(0, Math.min(TOTAL_SLIDES - 1, index));
+      const width = track.clientWidth;
+      track.scrollTo({
+        left: target * width,
+        behavior: 'smooth'
+      });
+      syncSlideUI(target);
+    }
+
+    function stepRelative(delta) {
+      goToSlide(activeSlide + delta);
+    }
+
+    function handleNextClick() {
+      if (activeSlide >= TOTAL_SLIDES - 1) {
+        goToSlide(0);
+      } else {
+        stepRelative(1);
+      }
+    }
+
+    /**
+     * Sync progress bar, bottom indicator dots, and prev/next buttons
+     */
+    function syncSlideUI(index) {
+      activeSlide = index;
+
+      // Top Progress Bar
+      const progressBar = document.getElementById('topProgressBar');
+      const pct = (index / (TOTAL_SLIDES - 1)) * 100;
+      progressBar.style.width = pct + '%';
+
+      // Bottom Indicator Dots
+      const dots = document.querySelectorAll('.nav-dot');
+      dots.forEach((dot) => {
+        const dotIdx = Number(dot.getAttribute('data-dot'));
+        if (dotIdx === index) {
+          dot.className = 'nav-dot h-2 w-6 rounded-full bg-tq-primary transition-all duration-300';
+        } else {
+          dot.className = 'nav-dot h-2 w-2 rounded-full bg-slate-200 hover:bg-slate-300 transition-all duration-300';
+        }
+      });
+
+      // Prev / Next Controls
+      const bottomPrev = document.getElementById('bottomPrevBtn');
+      const bottomNextLabel = document.getElementById('bottomNextLabel');
+      const pcPrev = document.getElementById('pcPrevBtn');
+      const pcNext = document.getElementById('pcNextBtn');
+
+      if (bottomPrev) bottomPrev.disabled = index === 0;
+      if (pcPrev) pcPrev.disabled = index === 0;
+      if (pcNext) pcNext.disabled = index === TOTAL_SLIDES - 1;
+
+      if (bottomNextLabel) {
+        bottomNextLabel.textContent = index === TOTAL_SLIDES - 1 ? '처음으로' : '다음';
+      }
+    }
+
+    /**
+     * Detect swipe scroll position in real time
+     */
+    track.addEventListener('scroll', () => {
+      if (!track.clientWidth) return;
+      const idx = Math.round(track.scrollLeft / track.clientWidth);
+      if (idx !== activeSlide && idx >= 0 && idx < TOTAL_SLIDES) {
+        syncSlideUI(idx);
+      }
+    }, { passive: true });
+
+    /**
+     * Keep slide aligned cleanly on screen resize / orientation change
+     */
+    window.addEventListener('resize', () => {
+      track.scrollTo({
+        left: activeSlide * track.clientWidth,
+        behavior: 'auto'
+      });
+    });
+
+    /**
+     * Keyboard Arrow & Escape Navigation
+     */
+    window.addEventListener('keydown', (e) => {
+      const sheetOpen = !document.getElementById('previewSheetModal').classList.contains('hidden');
+      const lightboxOpen = !document.getElementById('lightboxModal').classList.contains('hidden');
+
+      if (e.key === 'Escape') {
+        if (lightboxOpen) closeLightbox();
+        if (sheetOpen) togglePreviewSheet(false);
+        return;
+      }
+
+      if (sheetOpen || lightboxOpen) return;
+
+      if (e.key === 'ArrowRight') stepRelative(1);
+      if (e.key === 'ArrowLeft') stepRelative(-1);
+    });
+
+    /**
+     * Toggle SVG directional overlay on photo
+     */
+    function toggleGuideOverlay(btn) {
+      const box = btn.closest('.photo-box');
+      if (!box) return;
+      const isOff = box.classList.toggle('guide-off');
+      btn.textContent = isOff ? '안내선 켜기' : '안내선 끄기';
+    }
+
+    /**
+     * Preview Bottom Sheet Controls
+     */
+    function togglePreviewSheet(show) {
+      const modal = document.getElementById('previewSheetModal');
+      if (show) {
+        modal.classList.remove('hidden');
+      } else {
+        modal.classList.add('hidden');
+      }
+    }
+
+    function jumpFromSheet(stepIndex) {
+      togglePreviewSheet(false);
+      goToSlide(stepIndex);
+    }
+
+    /**
+     * Original Photo Lightbox Viewer
+     */
+    function openLightbox(stepNum) {
+      const item = PHOTO_DATA[stepNum];
+      if (!item) return;
+      document.getElementById('lightboxStepBadge').textContent = item.badge;
+      document.getElementById('lightboxImage').src = item.src;
+      document.getElementById('lightboxCaption').textContent = item.caption;
+      document.getElementById('lightboxModal').classList.remove('hidden');
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightboxModal').classList.add('hidden');
+    }
+
+    /**
+     * Copy phone number safely
+     */
+    function copyPhone() {
+      const phone = '010-7140-7798';
+      try {
+        const el = document.createElement('textarea');
+        el.value = phone;
+        el.setAttribute('readonly', '');
+        el.style.position = 'fixed';
+        el.style.opacity = '0';
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        showToast('010-7140-7798 번호가 복사되었습니다.');
+      } catch (err) {
+        showToast('연락처: 010-7140-7798');
+      }
+    }
+
+    function showToast(msg) {
+      const box = document.getElementById('toastBox');
+      const text = document.getElementById('toastText');
+      text.textContent = msg;
+      box.classList.remove('opacity-0', 'translate-y-2');
+      box.classList.add('opacity-100', 'translate-y-0');
+
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        box.classList.remove('opacity-100', 'translate-y-0');
+        box.classList.add('opacity-0', 'translate-y-2');
+      }, 2200);
+    }
+
+    window.onload = function () {
+      syncSlideUI(0);
+    };
+  </script>
+</body>
+</html>
